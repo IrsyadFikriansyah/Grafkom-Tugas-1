@@ -32,31 +32,27 @@ function main() {
     const vsSource = `
         attribute vec4 aVertexPosition;
         attribute vec3 aVertexNormal;
-        attribute vec4 aVertexColor;
-        // attribute vec2 aTextureCoord;
-
+        attribute vec2 aTextureCoord;
+    
         uniform mat4 uNormalMatrix;
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
-        
-        varying lowp vec4 vColor;
-        // varying highp vec2 vTextureCoord;
+    
+        varying highp vec2 vTextureCoord;
         varying highp vec3 vLighting;
-
+    
         void main(void) {
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        // vTextureCoord = aTextureCoord;
-        vColor = aVertexColor;
-
-
+        vTextureCoord = aTextureCoord;
+    
         // Apply lighting effect
-
+    
         highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
         highp vec3 directionalLightColor = vec3(1, 1, 1);
         highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
-
+    
         highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
-
+    
         highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
         vLighting = ambientLight + (directionalLightColor * directional);
         }
@@ -65,14 +61,17 @@ function main() {
     // Fragment shader program
 
     const fsSource = `
-        varying lowp vec4 vColor;
+        varying highp vec2 vTextureCoord;
         varying highp vec3 vLighting;
-
+    
+        uniform sampler2D uSampler;
+    
         void main(void) {
-            gl_FragColor = vec4(vColor.rgb * vLighting, vColor.a);
+        highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
+    
+        gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
         }
-        `;
-
+    `;
     // Initialize a shader program; this is where all the lighting
     // for the vertices and so forth is established.
     const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
@@ -81,28 +80,38 @@ function main() {
     // Look up which attributes our shader program is using
     // for aVertexPosition, aVertexColor and also
     // look up uniform locations.
-const programInfo = {
-  program: shaderProgram,
-  attribLocations: {
-    vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
-    vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
-    // textureCoord: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
-    vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
-  },
-  uniformLocations: {
-    projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
-    modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
-    normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
-    uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
-  },
-};
+    const programInfo = {
+        program: shaderProgram,
+        attribLocations: {
+            vertexPosition: gl.getAttribLocation(
+                shaderProgram,
+                "aVertexPosition"
+            ),
+            vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
+            textureCoord: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
+            // vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
+        },
+        uniformLocations: {
+            projectionMatrix: gl.getUniformLocation(
+                shaderProgram,
+                "uProjectionMatrix"
+            ),
+            modelViewMatrix: gl.getUniformLocation(
+                shaderProgram,
+                "uModelViewMatrix"
+            ),
+            normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
+            uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
+        },
+    };
 
     // Here's where we call the routine that builds all the
     // objects we'll be drawing.
     const buffers = initBuffers(gl);
 
     // Load texture
-    const texture = loadTexture(gl, "textures/cubetexture.png");
+    // const texture = loadTexture(gl, "textures/cubetexture.png");
+    const texture = loadTexture(gl, "textures/tiles.png");
     // Flip image pixels into the bottom-to-top order that WebGL expects.
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 

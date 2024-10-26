@@ -14,8 +14,8 @@ function initBuffers(gl) {
     return {
         position: positionBuffer,
         normal: normalBuffer,
-        // textureCoord: textureCoordBuffer,
-        color: colorBuffer,
+        textureCoord: textureCoordBuffer,
+        // color: colorBuffer,
         indices: indexBuffer,
     };
 }

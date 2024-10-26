@@ -64,13 +64,14 @@ function drawScene(gl, programInfo, buffers, texture, cubeRotation) {
     // buffer into the vertexPosition attribute.
     setPositionAttribute(gl, buffers, programInfo);
 
-    // Tell WebGL to use our program when drawing
-    setColorAttribute(gl, buffers, programInfo);
-    // setTextureAttribute(gl, buffers, programInfo);
+    setTextureAttribute(gl, buffers, programInfo);
 
     // Tell WebGL which indices to use to index the vertices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+
     setNormalAttribute(gl, buffers, programInfo);
+
+    // Tell WebGL to use our program when drawing
     gl.useProgram(programInfo.program);
 
     // Set the shader uniforms
@@ -90,21 +91,19 @@ function drawScene(gl, programInfo, buffers, texture, cubeRotation) {
         normalMatrix
     );
 
-    // // Tell WebGL we want to affect texture unit 0
-    // gl.activeTexture(gl.TEXTURE0);
+    // Tell WebGL we want to affect texture unit 0
+    gl.activeTexture(gl.TEXTURE0);
 
-    // // Bind the texture to texture unit 0
-    // gl.bindTexture(gl.TEXTURE_2D, texture);
+    // Bind the texture to texture unit 0
+    gl.bindTexture(gl.TEXTURE_2D, texture);
 
-    // // Tell the shader we bound the texture to texture unit 0
-    // gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+    // Tell the shader we bound the texture to texture unit 0
+    gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
     {
-        // const vertexCount = 6 * 6;
         const vertexCount = 6 * 9 * 6;
         const type = gl.UNSIGNED_SHORT;
         const offset = 0;
-        // gl.drawElements(gl.LINES, vertexCount, type, offset);
         gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
     }
 }
